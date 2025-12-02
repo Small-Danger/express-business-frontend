@@ -24,10 +24,29 @@ const Login = () => {
         window.location.href = '/dashboard';
         return;
       } else {
-        setError(result.message || 'Erreur de connexion');
+        // Afficher un message d'erreur plus explicite
+        let errorMessage = result.message || 'Erreur de connexion';
+        
+        // Si c'est une erreur réseau ou de connexion
+        if (!result.message || result.message === 'Erreur de connexion') {
+          errorMessage = 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.';
+        }
+        
+        // Afficher les erreurs de validation si présentes
+        if (result.errors) {
+          const validationErrors = Object.values(result.errors).flat().join(', ');
+          errorMessage += ` ${validationErrors}`;
+        }
+        
+        setError(errorMessage);
       }
     } catch (err) {
-      setError('Une erreur est survenue lors de la connexion');
+      // Gérer les erreurs réseau ou autres erreurs inattendues
+      const errorMessage = err.message?.includes('Network') 
+        ? 'Erreur de connexion réseau. Vérifiez votre connexion internet et que le serveur est accessible.'
+        : err.message || 'Une erreur inattendue est survenue lors de la connexion. Veuillez réessayer.';
+      setError(errorMessage);
+      console.error('Erreur de connexion:', err);
     } finally {
       setLoading(false);
     }
@@ -72,8 +91,16 @@ const Login = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md">
-                {error}
+              <div className="bg-red-50 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-700 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg shadow-md">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold">Erreur de connexion</p>
+                    <p className="text-sm mt-1">{error}</p>
+                  </div>
+                </div>
               </div>
             )}
 

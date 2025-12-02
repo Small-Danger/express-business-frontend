@@ -57,9 +57,37 @@ export const AuthProvider = ({ children }) => {
       
       return { success: false, message: response.data.message || 'Erreur de connexion' };
     } catch (error) {
+      // Gérer différents types d'erreurs avec des messages plus explicites
+      let errorMessage = 'Erreur de connexion';
+      
+      if (error.response) {
+        // Erreur avec réponse du serveur
+        if (error.response.status === 401) {
+          errorMessage = 'Identifiants incorrects. Vérifiez votre email et mot de passe.';
+        } else if (error.response.status === 422) {
+          errorMessage = 'Données invalides. Vérifiez les informations saisies.';
+          if (error.response.data?.errors) {
+            const validationErrors = Object.values(error.response.data.errors).flat().join(', ');
+            errorMessage += ` ${validationErrors}`;
+          }
+        } else if (error.response.status === 500) {
+          errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+        } else if (error.response.status === 0 || !error.response.status) {
+          errorMessage = 'Impossible de joindre le serveur. Vérifiez votre connexion internet.';
+        } else {
+          errorMessage = error.response.data?.message || `Erreur ${error.response.status}. Veuillez réessayer.`;
+        }
+      } else if (error.request) {
+        // Pas de réponse du serveur (problème réseau)
+        errorMessage = 'Impossible de se connecter au serveur. Vérifiez votre connexion internet et que le serveur est accessible.';
+      } else {
+        // Autre erreur
+        errorMessage = error.message || 'Une erreur inattendue est survenue.';
+      }
+      
       return {
         success: false,
-        message: error.response?.data?.message || 'Erreur de connexion',
+        message: errorMessage,
         errors: error.response?.data?.errors,
       };
     }
