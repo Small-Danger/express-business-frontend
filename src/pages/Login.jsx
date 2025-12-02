@@ -19,8 +19,10 @@ const Login = () => {
       const result = await login(email, password);
       
       if (result.success) {
-        // Rediriger vers le dashboard
-        navigate('/dashboard');
+        // Utiliser window.location pour forcer un rechargement complet
+        // Cela garantit que le token est bien pris en compte
+        window.location.href = '/dashboard';
+        return;
       } else {
         setError(result.message || 'Erreur de connexion');
       }
