@@ -253,7 +253,7 @@ const Accounts = () => {
 
       {/* Boutons d'actions */}
       <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'boss') && (
           <button
             onClick={handleCreateAccount}
             className="w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center space-x-2 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
