@@ -304,25 +304,38 @@ const ExpressWaveDetail = () => {
   const calculateProfitability = () => {
     if (!wave) return null;
 
-    // Revenus totaux : séparer par devise pour rester cohérent
-    // Revenus en CFA : somme de tous les prix CFA + conversion des prix MAD
+    // Revenus totaux : utiliser la devise principale de chaque colis pour éviter les doublons
+    // Déterminer la devise principale : si price_mad > 0, MAD est principal, sinon CFA
+    const getPriceInCurrency = (parcel, targetCurrency) => {
+      const priceMAD = parseFloat(parcel.price_mad) || 0;
+      const priceCFA = parseFloat(parcel.price_cfa) || 0;
+      const primaryCurrency = priceMAD > 0 ? 'MAD' : 'CFA';
+      const primaryAmount = primaryCurrency === 'MAD' ? priceMAD : priceCFA;
+      
+      if (primaryCurrency === targetCurrency) {
+        return primaryAmount;
+      }
+      // Convertir
+      if (primaryCurrency === 'MAD' && targetCurrency === 'CFA') {
+        return primaryAmount * exchangeRate;
+      } else if (primaryCurrency === 'CFA' && targetCurrency === 'MAD') {
+        return primaryAmount / exchangeRate;
+      }
+      return 0;
+    };
+
+    // Revenus en CFA : utiliser la devise principale et convertir si nécessaire
     const totalRevenueCFA = wave.trips?.reduce((sum, trip) => {
       const tripRevenue = trip.parcels?.reduce((s, parcel) => {
-        const priceCFA = parseFloat(parcel.price_cfa) || 0;
-        const priceMAD = parseFloat(parcel.price_mad) || 0;
-        // Ajouter le prix CFA directement, convertir le prix MAD en CFA
-        return s + priceCFA + (priceMAD * exchangeRate);
+        return s + getPriceInCurrency(parcel, 'CFA');
       }, 0) || 0;
       return sum + tripRevenue;
     }, 0) || 0;
 
-    // Revenus en MAD : somme de tous les prix MAD + conversion des prix CFA
+    // Revenus en MAD : utiliser la devise principale et convertir si nécessaire
     const totalRevenueMAD = wave.trips?.reduce((sum, trip) => {
       const tripRevenue = trip.parcels?.reduce((s, parcel) => {
-        const priceMAD = parseFloat(parcel.price_mad) || 0;
-        const priceCFA = parseFloat(parcel.price_cfa) || 0;
-        // Ajouter le prix MAD directement, convertir le prix CFA en MAD
-        return s + priceMAD + (priceCFA / exchangeRate);
+        return s + getPriceInCurrency(parcel, 'MAD');
       }, 0) || 0;
       return sum + tripRevenue;
     }, 0) || 0;
