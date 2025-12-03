@@ -316,24 +316,24 @@ const Waves = () => {
                         <div className="mt-3 pt-3 border-t border-gray-200">
                           <p className="text-xs text-gray-600 mb-2">Statut des trajets :</p>
                           <div className="flex flex-wrap gap-2">
-                            {convoysByStatus.planned > 0 && (
+                            {trajetsByStatus.planned > 0 && (
                               <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
-                                {convoysByStatus.planned} Planifié{convoysByStatus.planned > 1 ? 's' : ''}
+                                {trajetsByStatus.planned} Planifié{trajetsByStatus.planned > 1 ? 's' : ''}
                               </span>
                             )}
-                            {convoysByStatus.in_transit > 0 && (
+                            {trajetsByStatus.in_transit > 0 && (
                               <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
-                                {convoysByStatus.in_transit} En transit
+                                {trajetsByStatus.in_transit} En transit
                               </span>
                             )}
-                            {convoysByStatus.arrived > 0 && (
+                            {trajetsByStatus.arrived > 0 && (
                               <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">
-                                {convoysByStatus.arrived} Arrivé{convoysByStatus.arrived > 1 ? 's' : ''}
+                                {trajetsByStatus.arrived} Arrivé{trajetsByStatus.arrived > 1 ? 's' : ''}
                               </span>
                             )}
-                            {convoysByStatus.closed > 0 && (
+                            {trajetsByStatus.closed > 0 && (
                               <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
-                                {convoysByStatus.closed} Fermé{convoysByStatus.closed > 1 ? 's' : ''}
+                                {trajetsByStatus.closed} Fermé{trajetsByStatus.closed > 1 ? 's' : ''}
                               </span>
                             )}
                           </div>
