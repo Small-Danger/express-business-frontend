@@ -89,26 +89,32 @@ const AccountDetail = () => {
   };
 
   const columns = [
-    { key: 'reference', label: 'Référence' },
-    { key: 'created_at', label: 'Date', render: (value) => formatDate(value, 'DD/MM/YYYY HH:mm') },
+    { 
+      header: 'Référence',
+      accessor: (row) => row.reference || '-',
+    },
+    { 
+      header: 'Date',
+      accessor: (row) => row.created_at,
+      format: 'date',
+    },
     {
-      key: 'transaction_type',
-      label: 'Type',
-      render: (value) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTransactionTypeColor(value)}`}>
-          {getTransactionTypeLabel(value)}
+      header: 'Type',
+      accessor: (row) => row.transaction_type,
+      render: (row) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTransactionTypeColor(row.transaction_type)}`}>
+          {getTransactionTypeLabel(row.transaction_type)}
         </span>
       ),
     },
     {
-      key: 'amount',
-      label: 'Montant',
-      render: (value, row) => formatCurrency(value, row.currency),
+      header: 'Montant',
+      accessor: (row) => row.amount,
+      render: (row) => formatCurrency(row.amount, row.currency),
     },
     {
-      key: 'description',
-      label: 'Description',
-      render: (value) => value || '-',
+      header: 'Description',
+      accessor: (row) => row.description || '-',
     },
   ];
 
@@ -214,8 +220,8 @@ const AccountDetail = () => {
           <DataTable
             data={transactions}
             columns={columns}
-            pagination={pagination}
-            onPageChange={(page) => setPagination({ ...pagination, current_page: page })}
+            loading={false}
+            emptyMessage="Aucune transaction trouvée"
           />
         )}
         {transactions.length === 0 && !loading && (
