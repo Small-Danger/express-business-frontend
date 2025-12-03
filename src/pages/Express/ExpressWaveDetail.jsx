@@ -306,39 +306,53 @@ const ExpressWaveDetail = () => {
 
     // Revenus totaux : utiliser la devise principale de chaque colis pour éviter les doublons
     // Déterminer la devise principale : si price_mad > 0, MAD est principal, sinon CFA
+    // IMPORTANT : On utilise uniquement la devise principale, jamais les deux en même temps
     const getPriceInCurrency = (parcel, targetCurrency) => {
       const priceMAD = parseFloat(parcel.price_mad) || 0;
       const priceCFA = parseFloat(parcel.price_cfa) || 0;
+      
+      // Déterminer la devise principale : priorité à MAD si > 0, sinon CFA
+      // Si les deux sont > 0, MAD a la priorité (c'est la logique du backend)
       const primaryCurrency = priceMAD > 0 ? 'MAD' : 'CFA';
       const primaryAmount = primaryCurrency === 'MAD' ? priceMAD : priceCFA;
       
+      // Si le montant principal est 0, retourner 0 (pas de colis)
+      if (primaryAmount <= 0) {
+        return 0;
+      }
+      
+      // Si la devise cible est la même que la devise principale, retourner directement
       if (primaryCurrency === targetCurrency) {
         return primaryAmount;
       }
-      // Convertir
+      
+      // Convertir vers la devise cible
       if (primaryCurrency === 'MAD' && targetCurrency === 'CFA') {
         return primaryAmount * exchangeRate;
       } else if (primaryCurrency === 'CFA' && targetCurrency === 'MAD') {
         return primaryAmount / exchangeRate;
       }
+      
       return 0;
     };
 
     // Revenus en CFA : utiliser la devise principale et convertir si nécessaire
-    const totalRevenueCFA = wave.trips?.reduce((sum, trip) => {
+    // Utiliser la variable 'trips' chargée séparément pour éviter les doublons avec wave.trips
+    const totalRevenueCFA = trips.reduce((sum, trip) => {
       const tripRevenue = trip.parcels?.reduce((s, parcel) => {
         return s + getPriceInCurrency(parcel, 'CFA');
       }, 0) || 0;
       return sum + tripRevenue;
-    }, 0) || 0;
+    }, 0);
 
     // Revenus en MAD : utiliser la devise principale et convertir si nécessaire
-    const totalRevenueMAD = wave.trips?.reduce((sum, trip) => {
+    // Utiliser la variable 'trips' chargée séparément pour éviter les doublons avec wave.trips
+    const totalRevenueMAD = trips.reduce((sum, trip) => {
       const tripRevenue = trip.parcels?.reduce((s, parcel) => {
         return s + getPriceInCurrency(parcel, 'MAD');
       }, 0) || 0;
       return sum + tripRevenue;
-    }, 0) || 0;
+    }, 0);
 
     // Frais de la vague (convertir selon la devise)
     const waveCostsMAD = wave.costs?.reduce((sum, cost) => {
