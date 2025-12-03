@@ -10,6 +10,7 @@ import FormInput from '../../components/shared/FormInput';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import ClientSelect from '../../components/shared/ClientSelect';
+import ProductSelect from '../../components/shared/ProductSelect';
 import { formatDate, formatCurrency, formatStatus, getStatusClass, downloadBlob } from '../../utils/helpers';
 
 const ConvoyDetail = () => {
@@ -1677,37 +1678,50 @@ const ConvoyDetail = () => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Produit existant
-                      </label>
-                      <select
-                        value={item.product_id}
-                        onChange={(e) => updateItem(index, 'product_id', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">Sélectionner un produit</option>
-                        {products
-                          .filter(p => p.currency === formData.currency || !p.currency)
-                          .map((product) => (
-                            <option key={product.id} value={product.id}>
-                              {product.name} - {formatCurrency(product.sale_price, product.currency)}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                    <div>
-                      <FormInput
-                        label="Ou nom du produit"
-                        name={`product_name_${index}`}
-                        value={item.product_name}
-                        onChange={(e) => updateItem(index, 'product_name', e.target.value)}
-                        placeholder="Nom du produit"
-                        disabled={!!item.product_id}
-                      />
-                    </div>
-                  </div>
+                  <ProductSelect
+                    label="Produit"
+                    value={item.product_id || ''}
+                    onChange={(productId) => {
+                      updateItem(index, 'product_id', productId);
+                    }}
+                    onProductSelected={(product) => {
+                      // Remplir automatiquement les prix quand un produit est sélectionné
+                      if (product) {
+                        const newItems = [...formData.items];
+                        newItems[index] = {
+                          ...newItems[index],
+                          product_id: product.id.toString(),
+                          unit_price: product.sale_price || '',
+                          purchase_price: product.purchase_price || '',
+                          product_name: '', // Vider le nom car on a sélectionné un produit existant
+                        };
+                        setFormData({ ...formData, items: newItems });
+                      }
+                    }}
+                    currency={formData.currency}
+                    placeholder="Rechercher un produit ou créer un nouveau..."
+                    onProductCreated={async (newProduct) => {
+                      // Recharger la liste des produits
+                      const productsRes = await productService.getAll({ per_page: 100, is_active: true });
+                      if (productsRes.data.success) {
+                        const data = productsRes.data.data;
+                        setProducts(Array.isArray(data) ? data : (data?.data || []));
+                      }
+                    }}
+                    error={errors[`items.${index}.product_id`]?.[0]}
+                  />
+                  
+                  {/* Champ pour nom du produit si aucun produit n'est sélectionné */}
+                  {!item.product_id && (
+                    <FormInput
+                      label="Ou nom du produit (si création)"
+                      name={`product_name_${index}`}
+                      value={item.product_name}
+                      onChange={(e) => updateItem(index, 'product_name', e.target.value)}
+                      placeholder="Nom du produit à créer"
+                      error={errors[`items.${index}.product_name`]?.[0]}
+                    />
+                  )}
 
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <FormInput
