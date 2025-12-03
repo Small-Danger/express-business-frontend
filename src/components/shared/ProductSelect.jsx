@@ -13,7 +13,7 @@ const ProductSelect = ({
   required = false,
   error,
   disabled = false,
-  currency = null, // Filtrer par devise
+  currency = null, // Filtrer par devise (optionnel, si null affiche tous les produits)
   placeholder = 'Rechercher un produit...',
   className = '',
   onProductCreated = null, // Callback quand un produit est créé
@@ -36,30 +36,47 @@ const ProductSelect = ({
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const params = { per_page: 1000 };
-      if (currency) {
-        params.currency = currency;
-      }
-      // Charger uniquement les produits actifs
-      params.is_active = true;
+      // Charger TOUS les produits actifs (sans filtre par devise au niveau API)
+      // On affichera tous les produits, mais on priorisera ceux de la devise de la commande
+      const params = { per_page: 1000, is_active: true };
       
       const response = await productService.getAll(params);
       
       if (response.data.success) {
         const data = response.data.data;
-        const productsList = Array.isArray(data) ? data : (data?.data || []);
-        
-        // Filtrer par devise si spécifié
-        let filtered = productsList;
-        if (currency) {
-          filtered = productsList.filter(p => p.currency === currency);
+        // Gérer la pagination Laravel : data peut être un tableau ou un objet de pagination
+        let productsList = [];
+        if (Array.isArray(data)) {
+          productsList = data;
+        } else if (data?.data && Array.isArray(data.data)) {
+          productsList = data.data;
         }
         
-        setProducts(filtered);
-        setFilteredProducts(filtered);
+        // Trier les produits : ceux de la devise de la commande en premier si spécifiée
+        if (currency && productsList.length > 0) {
+          productsList.sort((a, b) => {
+            const aMatches = a.currency === currency ? 1 : 0;
+            const bMatches = b.currency === currency ? 1 : 0;
+            return bMatches - aMatches; // Les produits correspondants en premier
+          });
+        }
+        
+        setProducts(productsList);
+        setFilteredProducts(productsList);
+        
+        // Log pour déboguer
+        const matchingCurrency = currency ? productsList.filter(p => p.currency === currency).length : 0;
+        console.log(`ProductSelect: ${productsList.length} produits chargés${currency ? ` (${matchingCurrency} en ${currency})` : ''}`);
+      } else {
+        console.error('Erreur lors du chargement des produits:', response.data);
+        setProducts([]);
+        setFilteredProducts([]);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des produits:', error);
+      console.error('Détails de l\'erreur:', error.response?.data || error.message);
+      setProducts([]);
+      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
@@ -239,6 +256,22 @@ const ProductSelect = ({
                     ... et {filteredProducts.length - 10} autres
                   </div>
                 )}
+                {/* Toujours afficher l'option de création en bas */}
+                <div className="border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateModal(true);
+                      setIsOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>+ Créer un nouveau produit</span>
+                  </button>
+                </div>
               </>
             ) : searchTerm.trim() ? (
               <button
@@ -247,7 +280,7 @@ const ProductSelect = ({
                   setShowCreateModal(true);
                   setIsOpen(false);
                 }}
-                className="w-full px-4 py-3 text-left text-sm hover:bg-green-50 dark:hover:bg-gray-700 transition-colors border-t border-gray-200 dark:border-gray-700"
+                className="w-full px-4 py-3 text-left text-sm hover:bg-green-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-2">
                   <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,21 +295,19 @@ const ProductSelect = ({
                 </div>
               </button>
             ) : (
-              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                Commencez à taper pour rechercher un produit
-              </div>
-            )}
-            
-            {/* Bouton pour créer un nouveau produit manuellement */}
-            {searchTerm.trim() && (
-              <div className="border-t border-gray-200 dark:border-gray-700">
+              <div className="px-4 py-3">
+                <div className="text-sm text-gray-500 dark:text-gray-400 text-center mb-2">
+                  {currency 
+                    ? `Aucun produit actif en ${currency} trouvé`
+                    : 'Aucun produit actif trouvé'}
+                </div>
                 <button
                   type="button"
                   onClick={() => {
                     setShowCreateModal(true);
                     setIsOpen(false);
                   }}
-                  className="w-full px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 border-t border-gray-200 dark:border-gray-700 pt-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
