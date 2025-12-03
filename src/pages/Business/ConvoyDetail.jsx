@@ -808,8 +808,24 @@ const ConvoyDetail = () => {
     if (field === 'product_id' && value) {
       const product = products.find(p => p.id == value);
       if (product) {
-        newItems[index].unit_price = product.sale_price || '';
-        newItems[index].purchase_price = product.purchase_price || '';
+        const productCurrency = product.currency || 'CFA';
+        const orderCurrency = formData.currency || 'MAD';
+        
+        // Convertir les prix du produit vers la devise de la commande
+        const convertedSalePrice = getPriceInCurrency(
+          parseFloat(product.sale_price) || 0,
+          productCurrency,
+          orderCurrency
+        );
+        
+        const convertedPurchasePrice = getPriceInCurrency(
+          parseFloat(product.purchase_price) || 0,
+          productCurrency,
+          orderCurrency
+        );
+        
+        newItems[index].unit_price = convertedSalePrice > 0 ? convertedSalePrice.toFixed(2) : '';
+        newItems[index].purchase_price = convertedPurchasePrice > 0 ? convertedPurchasePrice.toFixed(2) : '';
         newItems[index].product_name = '';
       }
     }
@@ -1686,13 +1702,30 @@ const ConvoyDetail = () => {
                     }}
                     onProductSelected={(product) => {
                       // Remplir automatiquement les prix quand un produit est sélectionné
+                      // IMPORTANT: Convertir les prix du produit vers la devise de la commande
                       if (product) {
+                        const productCurrency = product.currency || 'CFA';
+                        const orderCurrency = formData.currency || 'MAD';
+                        
+                        // Convertir les prix du produit vers la devise de la commande
+                        const convertedSalePrice = getPriceInCurrency(
+                          parseFloat(product.sale_price) || 0,
+                          productCurrency,
+                          orderCurrency
+                        );
+                        
+                        const convertedPurchasePrice = getPriceInCurrency(
+                          parseFloat(product.purchase_price) || 0,
+                          productCurrency,
+                          orderCurrency
+                        );
+                        
                         const newItems = [...formData.items];
                         newItems[index] = {
                           ...newItems[index],
                           product_id: product.id.toString(),
-                          unit_price: product.sale_price || '',
-                          purchase_price: product.purchase_price || '',
+                          unit_price: convertedSalePrice > 0 ? convertedSalePrice.toFixed(2) : '',
+                          purchase_price: convertedPurchasePrice > 0 ? convertedPurchasePrice.toFixed(2) : '',
                           product_name: '', // Vider le nom car on a sélectionné un produit existant
                         };
                         setFormData({ ...formData, items: newItems });
