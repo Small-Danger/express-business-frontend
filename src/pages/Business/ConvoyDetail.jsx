@@ -68,7 +68,7 @@ const ConvoyDetail = () => {
   });
   const [secondaryCurrencies, setSecondaryCurrencies] = useState([]); // Devises secondaires (MAD, EUR, etc.)
 
-  // Charger le convoi, la vague et les commandes
+  // Charger le trajet, le convoi et les commandes
   useEffect(() => {
     loadConvoy();
     loadOrders();
@@ -93,25 +93,25 @@ const ConvoyDetail = () => {
             if (waveResponse.data.success) {
               setWave(waveResponse.data.data);
             } else {
-              console.error('Vague non trouvée pour le convoi');
+              console.error('Convoi non trouvé pour le trajet');
             }
           } catch (waveError) {
-            console.error('Erreur lors du chargement de la vague:', waveError);
+            console.error('Erreur lors du chargement du convoi:', waveError);
           }
         } else {
-          console.error('Aucune vague associée au convoi');
+          console.error('Aucun convoi associé au trajet');
         }
       }
     } catch (error) {
-      console.error('Erreur lors du chargement du convoi:', error);
-      alert('Convoi non trouvé');
+      console.error('Erreur lors du chargement du trajet:', error);
+      alert('Trajet non trouvé');
       navigate('/business/convoys');
     } finally {
       setLoading(false);
     }
   };
 
-  // Charger les frais du convoi
+  // Charger les frais du trajet
   const loadConvoyCosts = async () => {
     try {
       const response = await businessConvoyCostService.getAll({ business_convoy_id: id });
@@ -265,7 +265,7 @@ const ConvoyDetail = () => {
   // Ouvrir le modal pour créer une nouvelle commande
   const handleCreate = () => {
     if (!wave?.id) {
-      alert('Erreur: La vague n\'est pas chargée. Veuillez réessayer.');
+      alert('Erreur: Le convoi n\'est pas chargé. Veuillez réessayer.');
       return;
     }
     setSelectedOrder(null);
@@ -701,7 +701,7 @@ const ConvoyDetail = () => {
     const ordersInTransit = orders.filter(o => o.status === 'in_transit');
     
     if (ordersInTransit.length > 0) {
-      alert(`Impossible de clôturer le convoi. ${ordersInTransit.length} commande(s) sont encore en transit. Toutes les commandes doivent être livrées ou annulées.`);
+      alert(`Impossible de clôturer le trajet. ${ordersInTransit.length} commande(s) sont encore en transit. Toutes les commandes doivent être livrées ou annulées.`);
       return;
     }
 
@@ -711,7 +711,7 @@ const ConvoyDetail = () => {
     );
 
     if (ordersNotDelivered.length > 0) {
-      alert(`Impossible de clôturer le convoi. ${ordersNotDelivered.length} commande(s) ne sont pas encore livrées ou annulées. Toutes les commandes doivent être livrées ou annulées avant de clôturer le convoi.`);
+      alert(`Impossible de clôturer le trajet. ${ordersNotDelivered.length} commande(s) ne sont pas encore livrées ou annulées. Toutes les commandes doivent être livrées ou annulées avant de clôturer le trajet.`);
       return;
     }
 
@@ -763,7 +763,7 @@ const ConvoyDetail = () => {
       const validCosts = closeCosts.filter(cost => cost.label && cost.amount && parseFloat(cost.amount) > 0 && cost.account_id);
       
       if (validCosts.length === 0) {
-        setErrors({ costs: ['Au moins un frais avec un compte doit être renseigné pour clôturer le convoi'] });
+        setErrors({ costs: ['Au moins un frais avec un compte doit être renseigné pour clôturer le trajet'] });
         return;
       }
 
@@ -792,7 +792,7 @@ const ConvoyDetail = () => {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
-        alert(error.response?.data?.message || 'Erreur lors de la clôture du convoi');
+        alert(error.response?.data?.message || 'Erreur lors de la clôture du trajet');
       }
     } finally {
       setSaving(false);
@@ -928,9 +928,9 @@ const ConvoyDetail = () => {
         return itemData;
       });
 
-      // Vérifier que la vague est chargée
+      // Vérifier que le convoi est chargé
       if (!wave?.id) {
-        alert('Erreur: La vague n\'est pas chargée. Veuillez réessayer.');
+        alert('Erreur: Le convoi n\'est pas chargé. Veuillez réessayer.');
         return;
       }
 
@@ -1017,7 +1017,7 @@ const ConvoyDetail = () => {
       return [{ label: 'Voir', action: () => handleView(order), color: 'blue' }];
     }
 
-    // Si le convoi est fermé, seules les actions "Voir" et "Générer facture" sont disponibles
+    // Si le trajet est fermé, seules les actions "Voir" et "Générer facture" sont disponibles
     const isConvoyClosed = convoy?.status === 'closed';
     if (isConvoyClosed) {
       return [
@@ -1325,7 +1325,7 @@ const ConvoyDetail = () => {
     );
   }
 
-  // Un convoi peut être clôturé si :
+  // Un trajet peut être clôturé si :
   // - Il a au moins une commande
   // - Toutes les commandes sont livrées (delivered) ou annulées (cancelled)
   // - Aucune commande n'est en transit (in_transit)
@@ -1340,7 +1340,7 @@ const ConvoyDetail = () => {
     <div className="space-y-4 sm:space-y-6">
       {/* Fil d'Ariane */}
       <div className="flex items-center space-x-2 text-sm text-gray-600">
-        <Link to="/business/waves" className="hover:text-orange-600 font-medium">Vagues</Link>
+        <Link to="/business/waves" className="hover:text-orange-600 font-medium">Convois</Link>
         <span>/</span>
         {wave && (
           <>
@@ -1394,7 +1394,7 @@ const ConvoyDetail = () => {
               onClick={handleCloseConvoy}
               className="w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 bg-red-500 text-white rounded-lg sm:rounded-xl hover:bg-red-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              Clôturer le convoi
+              Clôturer le trajet
             </button>
           )}
           {convoy?.status !== 'closed' && (
@@ -1415,7 +1415,7 @@ const ConvoyDetail = () => {
       {convoy?.status !== 'closed' && hasAnyRole(['boss', 'admin']) && (
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Frais du convoi</h2>
+            <h2 className="text-xl font-bold text-gray-900">Frais du trajet</h2>
             <button
               onClick={handleCreateCost}
               className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-2"
@@ -1500,11 +1500,11 @@ const ConvoyDetail = () => {
         <div className="space-y-4">
           <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
             <p className="text-sm text-orange-900 dark:text-orange-100">
-              <strong>Vague:</strong> {wave?.name || 'Chargement...'} | <strong>Convoi:</strong> {convoy?.name || 'Chargement...'}
+              <strong>Convoi:</strong> {wave?.name || 'Chargement...'} | <strong>Trajet:</strong> {convoy?.name || 'Chargement...'}
             </p>
-            <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">La commande sera automatiquement rattachée à cette vague et ce convoi.</p>
+            <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">La commande sera automatiquement rattachée à ce convoi et ce trajet.</p>
             {!wave?.id && (
-              <p className="text-xs text-red-600 mt-1">⚠ Attention: La vague n'est pas encore chargée. Veuillez attendre un instant.</p>
+              <p className="text-xs text-red-600 mt-1">⚠ Attention: Le convoi n'est pas encore chargé. Veuillez attendre un instant.</p>
             )}
           </div>
 
@@ -1908,7 +1908,7 @@ const ConvoyDetail = () => {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Vague</p>
+                <p className="text-sm text-gray-600">Convoi</p>
                 <p className="font-medium">{viewedOrder.wave?.name || '-'}</p>
               </div>
               <div>
@@ -2508,7 +2508,7 @@ const ConvoyDetail = () => {
           {/* Liste des frais */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Frais du convoi</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Frais du trajet</h3>
               <button
                 onClick={addCloseCost}
                 className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -2632,7 +2632,7 @@ const ConvoyDetail = () => {
                   <span>Clôture...</span>
                 </>
               ) : (
-                <span>Clôturer le convoi</span>
+                <span>Clôturer le trajet</span>
               )}
             </button>
           </div>

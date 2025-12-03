@@ -71,7 +71,7 @@ const TripDetail = () => {
   });
   const [secondaryCurrencies, setSecondaryCurrencies] = useState([]); // Devises secondaires (MAD, EUR, etc.)
 
-  // Charger le trajet, la vague et les colis
+  // Charger le trajet, le convoi et les colis
   useEffect(() => {
     loadTrip();
     loadParcels();
@@ -98,7 +98,7 @@ const TripDetail = () => {
               setWave(waveResponse.data.data);
             }
           } catch (waveError) {
-            console.error('Erreur lors du chargement de la vague:', waveError);
+            console.error('Erreur lors du chargement du convoi:', waveError);
           }
         }
       }
@@ -1226,7 +1226,7 @@ const TripDetail = () => {
     <div className="space-y-4 sm:space-y-6">
       {/* Fil d'Ariane */}
       <div className="flex items-center space-x-2 text-sm text-gray-600">
-        <Link to="/express/waves" className="hover:text-blue-600 font-medium">Vagues Express</Link>
+        <Link to="/express/waves" className="hover:text-blue-600 font-medium">Convois Express</Link>
         <span>/</span>
         {wave && (
           <>
@@ -1369,7 +1369,7 @@ const TripDetail = () => {
         <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-900">
-              <strong>Vague:</strong> {wave?.name || 'Chargement...'} | <strong>Trajet:</strong> {trip?.name || 'Chargement...'}
+              <strong>Convoi:</strong> {wave?.name || 'Chargement...'} | <strong>Trajet:</strong> {trip?.name || 'Chargement...'}
             </p>
             <p className="text-xs text-blue-700 mt-1">Le colis sera automatiquement rattaché à ce trajet.</p>
             <p className="text-xs text-blue-700 mt-1">Taux de change: 1 MAD = {exchangeRate} FCFA (calcul automatique)</p>

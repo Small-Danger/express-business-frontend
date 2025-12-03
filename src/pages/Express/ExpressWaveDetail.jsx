@@ -38,7 +38,7 @@ const ExpressWaveDetail = () => {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // Charger la vague et ses trajets
+  // Charger le convoi et ses trajets
   useEffect(() => {
     loadWave();
     loadTrips();
@@ -52,8 +52,8 @@ const ExpressWaveDetail = () => {
         setWave(response.data.data);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement de la vague:', error);
-      alert('Vague non trouvée');
+      console.error('Erreur lors du chargement du convoi:', error);
+      alert('Convoi non trouvé');
       navigate('/express/waves');
     }
   };
@@ -194,23 +194,23 @@ const ExpressWaveDetail = () => {
     }
   };
 
-  // Clôturer la vague
+  // Clôturer le convoi
   const handleCloseWave = async () => {
     // Vérifier que tous les trajets sont fermés
     const tripsNotClosed = trips.filter(t => t.status !== 'closed');
     
     if (tripsNotClosed.length > 0) {
-      alert(`Impossible de clôturer la vague. ${tripsNotClosed.length} trajet(s) ne sont pas encore fermés. Tous les trajets doivent être fermés avant de clôturer la vague.`);
+      alert(`Impossible de clôturer le convoi. ${tripsNotClosed.length} trajet(s) ne sont pas encore fermés. Tous les trajets doivent être fermés avant de clôturer le convoi.`);
       return;
     }
 
     // Vérifier qu'il y a au moins un trajet
     if (trips.length === 0) {
-      alert('Impossible de clôturer la vague. Aucun trajet associé à cette vague.');
+      alert('Impossible de clôturer le convoi. Aucun trajet associé à ce convoi.');
       return;
     }
 
-    if (!window.confirm('Voulez-vous vraiment clôturer cette vague ? Tous les trajets doivent être fermés.')) return;
+    if (!window.confirm('Voulez-vous vraiment clôturer ce convoi ? Tous les trajets doivent être fermés.')) return;
 
     try {
       await expressWaveService.update(id, { status: 'closed' });
@@ -218,7 +218,7 @@ const ExpressWaveDetail = () => {
       await loadTrips();
     } catch (error) {
       console.error('Erreur lors de la clôture:', error);
-      alert(error.response?.data?.message || 'Erreur lors de la clôture de la vague');
+      alert(error.response?.data?.message || 'Erreur lors de la clôture du convoi');
     }
   };
 
@@ -294,13 +294,13 @@ const ExpressWaveDetail = () => {
     },
   ];
 
-  // Une vague peut être clôturée si :
+  // Un convoi peut être clôturé si :
   // - Elle a au moins un trajet
   // - Tous les trajets sont fermés (closed)
   const canCloseWave = trips.length > 0 && 
     trips.every(t => t.status === 'closed');
 
-  // Calculer la rentabilité de la vague
+  // Calculer la rentabilité du convoi
   const calculateProfitability = () => {
     if (!wave) return null;
 
@@ -354,7 +354,7 @@ const ExpressWaveDetail = () => {
       return sum + tripRevenue;
     }, 0);
 
-    // Frais de la vague (convertir selon la devise)
+    // Frais du convoi (convertir selon la devise)
     const waveCostsMAD = wave.costs?.reduce((sum, cost) => {
       const amount = parseFloat(cost.amount) || 0;
       // Convertir en MAD si la devise est CFA
@@ -402,7 +402,7 @@ const ExpressWaveDetail = () => {
       return sum + tripCost;
     }, 0);
 
-    // Total des frais (vague + trajets)
+    // Total des frais (convoi + trajets)
     const totalCostsCFA = waveCostsCFA + tripCostsCFA;
     const totalCostsMAD = waveCostsMAD + tripCostsMAD;
 
@@ -445,7 +445,7 @@ const ExpressWaveDetail = () => {
     <div className="space-y-4 sm:space-y-6">
       {/* Fil d'Ariane */}
       <div className="flex items-center space-x-2 text-sm text-gray-600">
-        <Link to="/express/waves" className="hover:text-blue-600 font-medium">Vagues Express</Link>
+        <Link to="/express/waves" className="hover:text-blue-600 font-medium">Convois Express</Link>
         <span>/</span>
         <span className="text-gray-900 font-semibold">{wave.name}</span>
       </div>
@@ -498,7 +498,7 @@ const ExpressWaveDetail = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Clôturer la vague</span>
+              <span>Clôturer le convoi</span>
             </button>
           )}
         </div>
@@ -529,7 +529,7 @@ const ExpressWaveDetail = () => {
               </p>
               <div className="text-xs text-gray-500 mt-1">
                 <p>({formatCurrency(profitability.totalCostsMAD, 'MAD')})</p>
-                <p className="mt-1">Vague: {formatCurrency(profitability.waveCostsCFA, 'CFA')}</p>
+                <p className="mt-1">Convoi: {formatCurrency(profitability.waveCostsCFA, 'CFA')}</p>
                 <p>Trajets: {formatCurrency(profitability.tripCostsCFA, 'CFA')}</p>
               </div>
             </div>
@@ -572,7 +572,7 @@ const ExpressWaveDetail = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
               <p className="text-lg font-medium text-gray-900 mb-2">Aucun trajet</p>
-              <p className="text-sm text-gray-500 mb-4">Commencez par créer un nouveau trajet pour cette vague</p>
+              <p className="text-sm text-gray-500 mb-4">Commencez par créer un nouveau trajet pour ce convoi</p>
               {wave.status !== 'closed' && (
                 <button
                   onClick={handleCreate}

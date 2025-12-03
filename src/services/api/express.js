@@ -4,7 +4,7 @@ import apiClient from '../../config/axios';
  * Service API pour le module Express
  */
 
-// Vagues Express
+// Convois Express
 export const expressWaveService = {
   getAll: (params = {}) => apiClient.get('/express/waves', { params }),
   getById: (id) => apiClient.get(`/express/waves/${id}`),
@@ -33,7 +33,7 @@ export const expressParcelService = {
   pickup: (id, data) => apiClient.post(`/express/parcels/${id}/pickup`, data),
 };
 
-// Frais des vagues Express
+// Frais des convois Express
 export const expressWaveCostService = {
   getAll: (params = {}) => apiClient.get('/express/wave-costs', { params }),
   getById: (id) => apiClient.get(`/express/wave-costs/${id}`),

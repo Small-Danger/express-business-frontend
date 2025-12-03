@@ -98,7 +98,7 @@ const Transactions = () => {
       parcel_deposit: 'Dépôt Colis',
       parcel_pickup_payment: 'Paiement Récupération Colis',
       trip_cost: 'Frais Trajet',
-      wave_cost: 'Frais Vague',
+      wave_cost: 'Frais Convoi',
       transfer_conversion: 'Transfert Inter-comptes',
     };
     return labels[category] || category;

@@ -39,7 +39,7 @@ const WaveDetail = () => {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // Charger la vague et ses convois
+  // Charger le convoi et ses trajets
   useEffect(() => {
     loadWave();
     loadConvoys();
@@ -53,8 +53,8 @@ const WaveDetail = () => {
         setWave(response.data.data);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement de la vague:', error);
-      alert('Vague non trouvée');
+      console.error('Erreur lors du chargement du convoi:', error);
+      alert('Convoi non trouvé');
       navigate('/business/waves');
     }
   };
@@ -92,12 +92,12 @@ const WaveDetail = () => {
     }
   };
 
-  // Naviguer vers la page de gestion du convoi
+  // Naviguer vers la page de gestion du trajet
   const handleManage = (convoy) => {
     navigate(`/business/convoys/${convoy.id}`);
   };
 
-  // Ouvrir le modal pour créer un nouveau convoi
+  // Ouvrir le modal pour créer un nouveau trajet
   const handleCreate = () => {
     setSelectedConvoy(null);
     setFormData({
@@ -118,7 +118,7 @@ const WaveDetail = () => {
     setIsModalOpen(true);
   };
 
-  // Ouvrir le modal pour éditer un convoi
+  // Ouvrir le modal pour éditer un trajet
   const handleEdit = (convoy) => {
     setSelectedConvoy(convoy);
     setFormData({
@@ -154,7 +154,7 @@ const WaveDetail = () => {
       setSelectedConvoy(null);
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
-      const message = error.response?.data?.message || 'Erreur lors de la suppression du convoi';
+      const message = error.response?.data?.message || 'Erreur lors de la suppression du trajet';
       alert(message);
     }
   };
@@ -199,23 +199,23 @@ const WaveDetail = () => {
     }
   };
 
-  // Clôturer la vague
+  // Clôturer le convoi
   const handleCloseWave = async () => {
-    // Vérifier que tous les convois sont fermés
-    const convoysNotClosed = convoys.filter(c => c.status !== 'closed');
+    // Vérifier que tous les trajets sont fermés
+    const trajetsNotClosed = convoys.filter(c => c.status !== 'closed');
     
-    if (convoysNotClosed.length > 0) {
-      alert(`Impossible de clôturer la vague. ${convoysNotClosed.length} convoi(s) ne sont pas encore fermés. Tous les convois doivent être fermés avant de clôturer la vague.`);
+    if (trajetsNotClosed.length > 0) {
+      alert(`Impossible de clôturer le convoi. ${trajetsNotClosed.length} trajet(s) ne sont pas encore fermés. Tous les trajets doivent être fermés avant de clôturer le convoi.`);
       return;
     }
 
-    // Vérifier qu'il y a au moins un convoi
+    // Vérifier qu'il y a au moins un trajet
     if (convoys.length === 0) {
-      alert('Impossible de clôturer la vague. Aucun convoi associé à cette vague.');
+      alert('Impossible de clôturer le convoi. Aucun trajet associé à ce convoi.');
       return;
     }
 
-    if (!window.confirm('Voulez-vous vraiment clôturer cette vague ? Tous les convois doivent être fermés.')) return;
+    if (!window.confirm('Voulez-vous vraiment clôturer ce convoi ? Tous les trajets doivent être fermés.')) return;
 
     try {
       await businessWaveService.update(id, { status: 'closed' });
@@ -223,7 +223,7 @@ const WaveDetail = () => {
       await loadConvoys();
     } catch (error) {
       console.error('Erreur lors de la clôture:', error);
-      alert(error.response?.data?.message || 'Erreur lors de la clôture de la vague');
+      alert(error.response?.data?.message || 'Erreur lors de la clôture du convoi');
     }
   };
 
@@ -289,13 +289,13 @@ const WaveDetail = () => {
     },
   ];
 
-  // Une vague peut être clôturée si :
-  // - Elle a au moins un convoi
-  // - Tous les convois sont fermés (closed)
+  // Un convoi peut être clôturé si :
+  // - Il a au moins un trajet
+  // - Tous les trajets sont fermés (closed)
   const canCloseWave = convoys.length > 0 && 
     convoys.every(c => c.status === 'closed');
 
-  // Calculer la rentabilité de la vague
+  // Calculer la rentabilité du convoi
   const calculateProfitability = () => {
     if (!wave) return null;
 
@@ -324,7 +324,7 @@ const WaveDetail = () => {
       return sum;
     }, 0) || 0;
 
-    // Frais de la vague (convertir selon la devise)
+    // Frais du convoi (convertir selon la devise)
     const waveCostsMAD = wave.costs?.reduce((sum, cost) => {
       const amount = parseFloat(cost.amount) || 0;
       // Convertir en MAD si la devise est CFA
@@ -345,7 +345,7 @@ const WaveDetail = () => {
       return sum + amount;
     }, 0) || 0;
 
-    // Frais des convois (tous les convois chargés avec leurs frais)
+    // Frais des trajets (tous les trajets chargés avec leurs frais)
     const convoyCostsMAD = convoys.reduce((sum, convoy) => {
       const convoyCost = convoy.costs?.reduce((s, cost) => {
         const amount = parseFloat(cost.amount) || 0;
@@ -372,7 +372,7 @@ const WaveDetail = () => {
       return sum + convoyCost;
     }, 0);
 
-    // Total des frais (vague + convois)
+    // Total des frais (convoi + trajets)
     const totalCostsMAD = waveCostsMAD + convoyCostsMAD;
     const totalCostsCFA = waveCostsCFA + convoyCostsCFA;
 
@@ -415,7 +415,7 @@ const WaveDetail = () => {
     <div className="space-y-4 sm:space-y-6">
       {/* Fil d'Ariane */}
       <div className="flex items-center space-x-2 text-sm text-gray-600">
-        <Link to="/business/waves" className="hover:text-blue-600 font-medium">Vagues</Link>
+        <Link to="/business/waves" className="hover:text-blue-600 font-medium">Convois</Link>
         <span>/</span>
         <span className="text-gray-900 font-semibold">{wave.name}</span>
       </div>
@@ -457,7 +457,7 @@ const WaveDetail = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              <span>Créer un convoi</span>
+              <span>Créer un trajet</span>
             </button>
           )}
           {canCloseWave && wave.status !== 'closed' && (
@@ -468,7 +468,7 @@ const WaveDetail = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Clôturer la vague</span>
+              <span>Clôturer le convoi</span>
             </button>
           )}
         </div>
@@ -499,8 +499,8 @@ const WaveDetail = () => {
               </p>
               <div className="text-xs text-gray-500 mt-1">
                 <p>({formatCurrency(profitability.totalCostsMAD, 'MAD')})</p>
-                <p className="mt-1">Vague: {formatCurrency(profitability.waveCostsCFA, 'CFA')}</p>
-                <p>Convois: {formatCurrency(profitability.convoyCostsCFA, 'CFA')}</p>
+                <p className="mt-1">Convoi: {formatCurrency(profitability.waveCostsCFA, 'CFA')}</p>
+                <p>Trajets: {formatCurrency(profitability.convoyCostsCFA, 'CFA')}</p>
               </div>
             </div>
             <div className={`bg-white rounded-xl p-4 shadow-md border-2 ${profitability.isProfitable ? 'border-green-500' : 'border-red-500'}`}>
@@ -541,14 +541,14 @@ const WaveDetail = () => {
               <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
-              <p className="text-lg font-medium text-gray-900 mb-2">Aucun convoi</p>
-              <p className="text-sm text-gray-500 mb-4">Commencez par créer un nouveau convoi pour cette vague</p>
+              <p className="text-lg font-medium text-gray-900 mb-2">Aucun trajet</p>
+              <p className="text-sm text-gray-500 mb-4">Commencez par créer un nouveau trajet pour ce convoi</p>
               {wave.status !== 'closed' && (
                 <button
                   onClick={handleCreate}
                   className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
-                  Créer un convoi
+                  Créer un trajet
                 </button>
               )}
             </div>
@@ -617,7 +617,7 @@ const WaveDetail = () => {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <span>Gérer le convoi</span>
+                    <span>Gérer le trajet</span>
                   </button>
                 </div>
               </div>
@@ -637,7 +637,7 @@ const WaveDetail = () => {
           searchable={true}
           pagination={true}
           itemsPerPage={10}
-          emptyMessage="Aucun convoi trouvé"
+          emptyMessage="Aucun trajet trouvé"
         />
       )}
 
@@ -649,7 +649,7 @@ const WaveDetail = () => {
           setSelectedConvoy(null);
           setErrors({});
         }}
-        title={selectedConvoy ? 'Modifier le convoi' : 'Nouveau convoi'}
+        title={selectedConvoy ? 'Modifier le trajet' : 'Nouveau trajet'}
         size="xl"
       >
         <div className="space-y-4">
@@ -661,7 +661,7 @@ const WaveDetail = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               error={errors.name?.[0]}
               required
-              placeholder="Nom du convoi"
+              placeholder="Nom du trajet"
             />
             <FormInput
               label="Voyageur"
@@ -837,8 +837,8 @@ const WaveDetail = () => {
           setSelectedConvoy(null);
         }}
         onConfirm={confirmDelete}
-        title="Supprimer le convoi"
-        message={`Êtes-vous sûr de vouloir supprimer le convoi "${selectedConvoy?.name}" ?`}
+        title="Supprimer le trajet"
+        message={`Êtes-vous sûr de vouloir supprimer le trajet "${selectedConvoy?.name}" ?`}
         variant="danger"
         confirmText="Supprimer"
       />

@@ -28,7 +28,7 @@ const Waves = () => {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // Charger les vagues
+  // Charger les convois
   useEffect(() => {
     loadWaves();
   }, []);
@@ -45,24 +45,24 @@ const Waves = () => {
         } else if (responseData?.data && Array.isArray(responseData.data)) {
           allWaves = responseData.data;
         }
-        // Filtrer pour exclure les vagues clôturées (elles sont dans Historiques)
+        // Filtrer pour exclure les convois clôturés (ils sont dans Historiques)
         const activeWaves = allWaves.filter(wave => wave.status !== 'closed');
         setWaves(activeWaves);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des vagues:', error);
+      console.error('Erreur lors du chargement des convois:', error);
       setWaves([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Naviguer vers la page de gestion de la vague
+  // Naviguer vers la page de gestion du convoi
   const handleManage = (wave) => {
     navigate(`/express/waves/${wave.id}`);
   };
 
-  // Ouvrir le modal pour créer une nouvelle vague
+  // Ouvrir le modal pour créer un nouveau convoi
   const handleCreate = () => {
     setSelectedWave(null);
     setFormData({
@@ -76,7 +76,7 @@ const Waves = () => {
     setIsModalOpen(true);
   };
 
-  // Ouvrir le modal pour éditer une vague
+  // Ouvrir le modal pour éditer un convoi
   const handleEdit = (wave) => {
     setSelectedWave(wave);
     setFormData({
@@ -105,7 +105,7 @@ const Waves = () => {
       setSelectedWave(null);
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
-      const message = error.response?.data?.message || 'Erreur lors de la suppression de la vague';
+      const message = error.response?.data?.message || 'Erreur lors de la suppression du convoi';
       alert(message);
     }
   };
@@ -193,7 +193,7 @@ const Waves = () => {
           onClick={() => handleManage(wave)}
           className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
         >
-          Gérer la vague
+          Gérer le convoi
         </button>
       ),
       sortable: false,
@@ -220,8 +220,8 @@ const Waves = () => {
       {/* Header avec bouton Ajouter */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Gestion des Vagues Express</h1>
-          <p className="text-green-100 dark:text-green-200 mt-1 text-sm sm:text-base font-medium">Gérez vos vagues de colis</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Gestion des Convois Express</h1>
+          <p className="text-green-100 dark:text-green-200 mt-1 text-sm sm:text-base font-medium">Gérez vos convois de colis</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
           {/* Toggle vue cards/table */}
@@ -259,7 +259,7 @@ const Waves = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            <span>Nouvelle vague</span>
+            <span>Nouveau convoi</span>
           </button>
         </div>
       </div>
@@ -273,7 +273,7 @@ const Waves = () => {
             </div>
           ) : waves.length === 0 ? (
             <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
-              Aucune vague trouvée
+              Aucun convoi trouvé
             </div>
           ) : (
             waves.map((wave) => (
@@ -313,7 +313,7 @@ const Waves = () => {
                   onClick={() => handleManage(wave)}
                   className="w-full px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                 >
-                  Gérer la vague
+                  Gérer le convoi
                 </button>
               </div>
             ))
@@ -321,7 +321,7 @@ const Waves = () => {
         </div>
       )}
 
-      {/* Tableau des vagues */}
+      {/* Tableau des convois */}
       {viewMode === 'table' && (
         <DataTable
           data={waves}
@@ -332,7 +332,7 @@ const Waves = () => {
           searchable={true}
           pagination={true}
           itemsPerPage={10}
-          emptyMessage="Aucune vague trouvée"
+          emptyMessage="Aucun convoi trouvé"
         />
       )}
 
@@ -344,7 +344,7 @@ const Waves = () => {
           setSelectedWave(null);
           setErrors({});
         }}
-        title={selectedWave ? 'Modifier la vague' : 'Nouvelle vague'}
+        title={selectedWave ? 'Modifier le convoi' : 'Nouveau convoi'}
         size="lg"
       >
         <div className="space-y-4">
@@ -365,7 +365,7 @@ const Waves = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               error={errors.name?.[0]}
               required
-              placeholder="Nom de la vague"
+              placeholder="Nom du convoi"
             />
           </div>
 
@@ -453,8 +453,8 @@ const Waves = () => {
           setSelectedWave(null);
         }}
         onConfirm={confirmDelete}
-        title="Supprimer la vague"
-        message={`Êtes-vous sûr de vouloir supprimer la vague "${selectedWave?.name}" ?`}
+        title="Supprimer le convoi"
+        message={`Êtes-vous sûr de vouloir supprimer le convoi "${selectedWave?.name}" ?`}
         variant="danger"
         confirmText="Supprimer"
       />

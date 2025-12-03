@@ -22,7 +22,7 @@ export const productService = {
   delete: (id) => apiClient.delete(`/business/products/${id}`),
 };
 
-// Vagues Business
+// Convois Business
 export const businessWaveService = {
   getAll: (params = {}) => apiClient.get('/business/waves', { params }),
   getById: (id) => apiClient.get(`/business/waves/${id}`),
@@ -59,7 +59,7 @@ export const businessOrderItemService = {
   delete: (id) => apiClient.delete(`/business/order-items/${id}`),
 };
 
-// Frais des vagues
+// Frais des convois
 export const businessWaveCostService = {
   getAll: (params = {}) => apiClient.get('/business/wave-costs', { params }),
   getById: (id) => apiClient.get(`/business/wave-costs/${id}`),
@@ -68,7 +68,7 @@ export const businessWaveCostService = {
   delete: (id) => apiClient.delete(`/business/wave-costs/${id}`),
 };
 
-// Frais des convois
+// Frais des trajets
 export const businessConvoyCostService = {
   getAll: (params = {}) => apiClient.get('/business/convoy-costs', { params }),
   getById: (id) => apiClient.get(`/business/convoy-costs/${id}`),

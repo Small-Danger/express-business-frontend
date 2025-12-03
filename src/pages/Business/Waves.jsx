@@ -28,7 +28,7 @@ const Waves = () => {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // Charger les vagues
+  // Charger les convois
   useEffect(() => {
     loadWaves();
   }, []);
@@ -45,19 +45,19 @@ const Waves = () => {
         } else if (responseData?.data && Array.isArray(responseData.data)) {
           allWaves = responseData.data;
         }
-        // Filtrer pour exclure les vagues clôturées (elles sont dans Historiques)
+        // Filtrer pour exclure les convois clôturés (ils sont dans Historiques)
         const activeWaves = allWaves.filter(wave => wave.status !== 'closed');
         setWaves(activeWaves);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des vagues:', error);
+      console.error('Erreur lors du chargement des convois:', error);
       setWaves([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Ouvrir le modal pour créer une nouvelle vague
+  // Ouvrir le modal pour créer un nouveau convoi
   const handleCreate = () => {
     setSelectedWave(null);
     setFormData({
@@ -71,7 +71,7 @@ const Waves = () => {
     setIsModalOpen(true);
   };
 
-  // Ouvrir le modal pour éditer une vague
+  // Ouvrir le modal pour éditer un convoi
   const handleEdit = (wave) => {
     setSelectedWave(wave);
     setFormData({
@@ -85,7 +85,7 @@ const Waves = () => {
     setIsModalOpen(true);
   };
 
-  // Naviguer vers la page de gestion de la vague
+  // Naviguer vers la page de gestion du convoi
   const handleManage = (wave) => {
     navigate(`/business/waves/${wave.id}`);
   };
@@ -105,7 +105,7 @@ const Waves = () => {
       setSelectedWave(null);
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
-      const message = error.response?.data?.message || 'Erreur lors de la suppression de la vague';
+      const message = error.response?.data?.message || 'Erreur lors de la suppression du convoi';
       alert(message);
     }
   };
@@ -186,7 +186,7 @@ const Waves = () => {
       sortable: true,
     },
     {
-      header: 'Convois',
+      header: 'Trajets',
       accessor: (wave) => wave.convoys_count || 0,
       render: (wave) => (
         <span className="text-sm font-medium text-gray-900">{wave.convoys_count || 0}</span>
@@ -215,8 +215,8 @@ const Waves = () => {
       {/* Header avec bouton Ajouter et toggle vue */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gradient-to-r from-orange-600 to-orange-700 dark:from-orange-700 dark:to-orange-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Gestion des Vagues Business</h1>
-          <p className="text-orange-100 dark:text-orange-200 mt-1 text-sm sm:text-base font-medium">Gérez vos vagues de commandes</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Gestion des Convois Business</h1>
+          <p className="text-orange-100 dark:text-orange-200 mt-1 text-sm sm:text-base font-medium">Gérez vos convois de commandes</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
           {/* Toggle vue cards/table */}
@@ -254,7 +254,7 @@ const Waves = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            <span>Nouvelle vague</span>
+            <span>Nouveau convoi</span>
           </button>
         </div>
       </div>
@@ -268,12 +268,12 @@ const Waves = () => {
             </div>
           ) : waves.length === 0 ? (
             <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
-              Aucune vague trouvée
+              Aucun convoi trouvé
             </div>
           ) : (
             waves.map((wave) => {
-              // Statistiques des convois par statut (depuis les convois chargés ou depuis les counts si disponibles)
-              const convoysByStatus = {
+              // Statistiques des trajets par statut (depuis les trajets chargés ou depuis les counts si disponibles)
+              const trajetsByStatus = {
                 planned: wave.convoys ? wave.convoys.filter(c => c.status === 'planned').length : 0,
                 in_transit: wave.convoys ? wave.convoys.filter(c => c.status === 'in_transit').length : 0,
                 arrived: wave.convoys ? wave.convoys.filter(c => c.status === 'arrived').length : 0,
@@ -307,14 +307,14 @@ const Waves = () => {
                           <p className="font-semibold text-gray-900 dark:text-gray-100">{wave.orders_count || 0}</p>
                         </div>
                         <div>
-                          <p className="text-gray-600 dark:text-gray-400">Convois</p>
+                          <p className="text-gray-600 dark:text-gray-400">Trajets</p>
                           <p className="font-semibold text-gray-900 dark:text-gray-100">{wave.convoys_count || 0}</p>
                         </div>
                       </div>
 
                       {wave.convoys_count > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-200">
-                          <p className="text-xs text-gray-600 mb-2">Statut des convois :</p>
+                          <p className="text-xs text-gray-600 mb-2">Statut des trajets :</p>
                           <div className="flex flex-wrap gap-2">
                             {convoysByStatus.planned > 0 && (
                               <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
@@ -359,7 +359,7 @@ const Waves = () => {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
-                      <span>Gérer la vague</span>
+                      <span>Gérer le convoi</span>
                     </button>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ const Waves = () => {
           searchable={true}
           pagination={true}
           itemsPerPage={10}
-          emptyMessage="Aucune vague trouvée"
+          emptyMessage="Aucun convoi trouvé"
         />
       )}
 
@@ -392,7 +392,7 @@ const Waves = () => {
           setSelectedWave(null);
           setErrors({});
         }}
-        title={selectedWave ? 'Modifier la vague' : 'Nouvelle vague'}
+        title={selectedWave ? 'Modifier le convoi' : 'Nouveau convoi'}
         size="lg"
       >
         <div className="space-y-4">
@@ -413,7 +413,7 @@ const Waves = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               error={errors.name?.[0]}
               required
-              placeholder="Nom de la vague"
+              placeholder="Nom du convoi"
             />
           </div>
 
@@ -502,8 +502,8 @@ const Waves = () => {
           setSelectedWave(null);
         }}
         onConfirm={confirmDelete}
-        title="Supprimer la vague"
-        message={`Êtes-vous sûr de vouloir supprimer la vague "${selectedWave?.name}" ?`}
+        title="Supprimer le convoi"
+        message={`Êtes-vous sûr de vouloir supprimer le convoi "${selectedWave?.name}" ?`}
         variant="danger"
         confirmText="Supprimer"
       />

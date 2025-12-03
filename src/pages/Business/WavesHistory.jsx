@@ -13,7 +13,7 @@ const WavesHistory = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('cards'); // 'cards' ou 'table'
 
-  // Charger les vagues clôturées
+  // Charger les convois clôturés
   useEffect(() => {
     loadWaves();
   }, []);
@@ -30,24 +30,24 @@ const WavesHistory = () => {
         } else if (responseData?.data && Array.isArray(responseData.data)) {
           allWaves = responseData.data;
         }
-        // Filtrer uniquement les vagues clôturées
+        // Filtrer uniquement les convois clôturés
         const closedWaves = allWaves.filter(wave => wave.status === 'closed');
         setWaves(closedWaves);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des vagues clôturées:', error);
+      console.error('Erreur lors du chargement des convois clôturés:', error);
       setWaves([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Naviguer vers la page de gestion de la vague
+  // Naviguer vers la page de gestion du convoi
   const handleManage = (wave) => {
     navigate(`/business/waves/${wave.id}`);
   };
 
-  // Calculer les statuts des convois pour l'affichage
+  // Calculer les statuts des trajets pour l'affichage
   const getConvoysByStatus = (wave) => {
     const convoys = wave.convoys || [];
     return {
@@ -103,7 +103,7 @@ const WavesHistory = () => {
       sortable: true,
     },
     {
-      header: 'Convois',
+      header: 'Trajets',
       accessor: (wave) => wave.convoys_count || 0,
       render: (wave) => (
         <span className="text-sm font-medium text-gray-900">{wave.convoys_count || 0}</span>
@@ -154,9 +154,9 @@ const WavesHistory = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
         <div>
           <Link to="/business/waves" className="text-sm text-blue-100 hover:text-white mb-2 inline-block font-medium">
-            ← Retour aux vagues
+            ← Retour aux convois
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Historique des Vagues Clôturées</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Historique des Convois Clôturés</h1>
         </div>
         <div className="flex items-center space-x-3">
           {/* Toggle vue cards/table */}
@@ -181,14 +181,14 @@ const WavesHistory = () => {
         </div>
       </div>
 
-      {/* Message si aucune vague clôturée */}
+      {/* Message si aucun convoi clôturé */}
       {!loading && waves.length === 0 && (
         <div className="bg-white rounded-xl shadow-lg p-8 sm:p-12 text-center border border-gray-100">
           <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Aucune vague clôturée</p>
-          <p className="text-sm text-gray-500">Il n'y a pas encore de vagues clôturées dans le système.</p>
+          <p className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Aucun convoi clôturé</p>
+          <p className="text-sm text-gray-500">Il n'y a pas encore de convois clôturés dans le système.</p>
         </div>
       )}
 
@@ -232,14 +232,14 @@ const WavesHistory = () => {
                         <p className="font-semibold text-gray-900">{wave.orders_count || 0}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Convois</p>
+                        <p className="text-gray-600">Trajets</p>
                         <p className="font-semibold text-gray-900">{wave.convoys_count || 0}</p>
                       </div>
                     </div>
 
                     {wave.convoys_count > 0 && (
                       <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-xs text-gray-600 mb-2">Statut des convois :</p>
+                        <p className="text-xs text-gray-600 mb-2">Statut des trajets :</p>
                         <div className="flex flex-wrap gap-2">
                           {convoysByStatus.planned > 0 && (
                             <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
@@ -293,7 +293,7 @@ const WavesHistory = () => {
           searchable={true}
           pagination={true}
           itemsPerPage={10}
-          emptyMessage="Aucune vague clôturée trouvée"
+          emptyMessage="Aucun convoi clôturé trouvé"
         />
       )}
     </div>
